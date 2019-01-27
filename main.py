@@ -25,7 +25,10 @@ ask = Ask(app, "/")
 logging.getLogger("flask_ask").setLevel(logging.INFO)
 
 greetings = open("greetings.txt").readlines()
-sentences = open("sentences.txt").readlines()
+sentences_1 = open("sentences_1.txt").readlines()
+sentences_2 = open("sentences_2.txt").readlines()
+
+
 
 @app.route('/')
 def hello():
@@ -40,14 +43,31 @@ def server_error(e):
 @ask.launch
 def random_tricky_word_sentence():
 
-    random_sentence = random.choice(sentences)
+    if random.randint(0, 10) > 8:
+        # 20% of choices
+        random_sentence = random.choice(sentences_1)
+    else:
+        random_sentence = random.choice(sentences_2)
     msg = "<speak>"
     msg += "<s>%s!</s>" % random.choice(greetings)
-    msg += "<s>Please write down: %s.</s>" % random_sentence
+    msg += "<s>Please write down the following sentence: %s.</s>" % random_sentence
     msg += "<s>I repeat: <emphasis level='strong'>%s.</emphasis></s>" % random_sentence
     msg += "</speak>"
 
     return statement(msg)
+
+@ask.intent("YesIntent")
+def sentence():
+    return statement("""
+    <speak>
+        ok, one more time: <emphasis level='strong'>The circulating air turbines were full of muffins</emphasis>
+    </speak>
+    """)
+
+@ask.intent("NoIntent")
+def sentence():
+    return statement("ok.")
+
 
 if __name__ == '__main__':
     app.run(debug=True)
